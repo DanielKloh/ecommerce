@@ -19,44 +19,36 @@
             <div class="col-md-3 col-sm-6">
                 <div class="single-shop-product">
                     <div class="product-upper">
-                        <img src="/res/site/img/product-2.jpg" alt="">
+                        <img src="<?php echo htmlspecialchars( $value1["desphoto"], ENT_COMPAT, 'UTF-8', FALSE ); ?>" alt="imagem bem legal">
                     </div>
-                    <h2><a href="">Apple new mac book 2015 March :P</a></h2>
+                    <h2><a href="/products/<?php echo htmlspecialchars( $value1["desurl"], ENT_COMPAT, 'UTF-8', FALSE ); ?>"><?php echo htmlspecialchars( $value1["desproduct"], ENT_COMPAT, 'UTF-8', FALSE ); ?></a></h2>
                     <div class="product-carousel-price">
-                        <ins>$899.00</ins> <del>$999.00</del>
-                    </div>  
-                    
+                        <ins>R$ <?php echo htmlspecialchars( $value1["vlprice"], ENT_COMPAT, 'UTF-8', FALSE ); ?></ins>
+                    </div>
+
                     <div class="product-option-shop">
-                        <a class="add_to_cart_button" data-quantity="1" data-product_sku="" data-product_id="70" rel="nofollow" href="/canvas/shop/?add-to-cart=70">Add to cart</a>
-                    </div>                       
+                        <a class="add_to_cart_button" data-quantity="1" data-product_sku="" data-product_id="70"
+                            rel="nofollow" href="/cart/<?php echo htmlspecialchars( $value1["idproduct"], ENT_COMPAT, 'UTF-8', FALSE ); ?>/add">Comprar</a>
+                    </div>
                 </div>
             </div>
             <?php } ?>
 
+
         </div>
-        
+
         <div class="row">
             <div class="col-md-12">
                 <div class="product-pagination text-center">
                     <nav>
                         <ul class="pagination">
-                        <li>
-                            <a href="#" aria-label="Previous">
-                            <span aria-hidden="true">«</span>
-                            </a>
-                        </li>
-                        <li><a href="#">1</a></li>
-                        <li><a href="#">2</a></li>
-                        <li><a href="#">3</a></li>
-                        <li><a href="#">4</a></li>
-                        <li><a href="#">5</a></li>
-                        <li>
-                            <a href="#" aria-label="Next">
-                            <span aria-hidden="true">»</span>
-                            </a>
-                        </li>
+                            <?php $counter1=-1;  if( isset($page) && ( is_array($page) || $page instanceof Traversable ) && sizeof($page) ) foreach( $page as $key1 => $value1 ){ $counter1++; ?>
+
+                            <li><a href="<?php echo htmlspecialchars( $value1["link"], ENT_COMPAT, 'UTF-8', FALSE ); ?>"><?php echo htmlspecialchars( $value1["page"], ENT_COMPAT, 'UTF-8', FALSE ); ?></a></li>
+                            <?php } ?>
+
                         </ul>
-                    </nav>                        
+                    </nav>
                 </div>
             </div>
         </div>

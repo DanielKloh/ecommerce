@@ -1,6 +1,7 @@
 <?php
 
 
+
 namespace projeto\Model;
 
 use \projeto\DB\Sql;
@@ -10,9 +11,10 @@ use \projeto\Mailer;
 class User extends Model
 {
 
-	const SESSION = "User";
-	const SECRET = "HcodePhp7_Secret";
-	const SECRET_IV = "HcodePhp7_Secret_IV";
+
+    const SESSION = "User";
+    const SECRET = "HcodePhp7_Secret";
+    const SECRET_IV = "HcodePhp7_Secret_IV";
 
     public static function login($login, $password)
     {
@@ -64,6 +66,8 @@ class User extends Model
         ) {
             header("Location: /admin/login/");
             exit;
+        }
+        else{
         }
     }
 
@@ -234,16 +238,16 @@ class User extends Model
     }
 
 
-    public static function validForgotDecripy($code){
+    public static function validForgotDecripy($code)
+    {
 
         $code = base64_decode($code);
 
-		$idrecovery = openssl_decrypt($code, 'AES-128-CBC', pack("a16", User::SECRET), 0, pack("a16", User::SECRET_IV));
+        $idrecovery = openssl_decrypt($code, 'AES-128-CBC', pack("a16", User::SECRET), 0, pack("a16", User::SECRET_IV));
 
         $sql = new Sql();
 
-        $results = $sql->select("
-			SELECT *
+        $results = $sql->select("SELECT *
 			FROM tb_userspasswordsrecoveries a
 			INNER JOIN tb_users b USING(iduser)
 			INNER JOIN tb_persons c USING(idperson)
@@ -254,14 +258,14 @@ class User extends Model
 				AND
 				DATE_ADD(a.dtregister, INTERVAL 1 HOUR) >= NOW();
 		", array(
-			":idrecovery"=>$idrecovery
-		));
+                ":idrecovery" => $idrecovery
+            )
+        );
 
-        if (count($results) === 0){
+        if (count($results) === 0) {
             throw new \Exception("Não foi possível recuperar a senha", 1);
-            
-        }
-        else{
+
+        } else {
 
             return $results[0];
         }
@@ -269,21 +273,25 @@ class User extends Model
 
 
 
-    public static function setForgotUsed($idrecovery){
+    public static function setForgotUsed($idrecovery)
+    {
         $sql = new Sql();
 
-        $sql->query("UPDATE tb_userspasswordsrecoveries SET dtrecovery = NOW idrecovery = :idrecovery",array(
-            ":idrecovery"=>$idrecovery
-        ));
+        $sql->query("UPDATE tb_userspasswordsrecoveries SET dtrecovery = NOW idrecovery = :idrecovery", array(
+            ":idrecovery" => $idrecovery
+        )
+        );
     }
 
-    public function setPassword($Password){
+    public function setPassword($Password)
+    {
         $sql = new Sql();
 
-        $sql->select("UPDATE tb_users SET despassword = :password WHERE iduser = :iduser",array(
-            ":passeord"=>$Password,
-            ":iduser"=>$this->getiduser()
-        ));
+        $sql->select("UPDATE tb_users SET despassword = :password WHERE iduser = :iduser", array(
+            ":passeord" => $Password,
+            ":iduser" => $this->getiduser()
+        )
+        );
     }
 }
 ?>
