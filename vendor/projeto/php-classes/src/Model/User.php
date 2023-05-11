@@ -16,6 +16,38 @@ class User extends Model
     const SECRET = "HcodePhp7_Secret";
     const SECRET_IV = "HcodePhp7_Secret_IV";
 
+
+    public static function getFromSession()
+    {
+        $user = new User();
+
+        if (isset($_SESSION[User::SESSION]) && (int) $_SESSION[User::SESSION]["iduser"] > 0) {
+            $user->setData($_SESSION[User::SESSION]);
+        }
+
+        return $user;
+    }
+
+
+    public static function chekLogin($inadmin = true)
+    {
+        if (
+            !isset($_SESSION[User::SESSION])
+            ||
+            !$_SESSION[User::SESSION]
+            ||
+            !(int) $_SESSION[User::SESSION]["iduser"] > 0
+        ) {
+            //Não esta logado
+            return false;
+        } else if ($inadmin === true && (bool) $_SESSION[User::SESSION]["inadmin"] === true) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
     public static function login($login, $password)
     {
 
@@ -55,19 +87,10 @@ class User extends Model
     public static function verifyLogin($inadmin = true)
     {
 
-        if (
-            !isset($_SESSION[User::SESSION])
-            ||
-            !$_SESSION[User::SESSION]
-            ||
-            !(int) $_SESSION[User::SESSION]["iduser"] > 0
-            ||
-            (bool) $_SESSION[User::SESSION]["iduser"] !== $inadmin
-        ) {
+        if (User::chekLogin($inadmin)) {
             header("Location: /admin/login/");
             exit;
-        }
-        else{
+        } else {
         }
     }
 
@@ -257,7 +280,8 @@ class User extends Model
 				a.dtrecovery IS NULL
 				AND
 				DATE_ADD(a.dtregister, INTERVAL 1 HOUR) >= NOW();
-		", array(
+		",
+            array(
                 ":idrecovery" => $idrecovery
             )
         );
@@ -277,9 +301,11 @@ class User extends Model
     {
         $sql = new Sql();
 
-        $sql->query("UPDATE tb_userspasswordsrecoveries SET dtrecovery = NOW idrecovery = :idrecovery", array(
-            ":idrecovery" => $idrecovery
-        )
+        $sql->query(
+            "UPDATE tb_userspasswordsrecoveries SET dtrecovery = NOW idrecovery = :idrecovery",
+            array(
+                ":idrecovery" => $idrecovery
+            )
         );
     }
 
@@ -287,10 +313,12 @@ class User extends Model
     {
         $sql = new Sql();
 
-        $sql->select("UPDATE tb_users SET despassword = :password WHERE iduser = :iduser", array(
-            ":passeord" => $Password,
-            ":iduser" => $this->getiduser()
-        )
+        $sql->select(
+            "UPDATE tb_users SET despassword = :password WHERE iduser = :iduser",
+            array(
+                ":passeord" => $Password,
+                ":iduser" => $this->getiduser()
+            )
         );
     }
 }

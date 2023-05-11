@@ -1,6 +1,7 @@
 <?php
 
 
+use projeto\Model\Cart;
 use projeto\Model\Category;
 use projeto\Model\Products;
 use projeto\Page;
@@ -58,6 +59,15 @@ $app->get('/products/:desurl', function($desurl){
 		"product"=>$product->getValues(),
 		"categories"=>$product->getCategories()
 	]);
+});
+
+
+
+$app->get("/cart",function(){
+	$cart = Cart::getFromSession();
+	$page = new Page();
+
+	$page->setTpl("cart");
 })
 
 ?>
