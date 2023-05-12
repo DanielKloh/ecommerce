@@ -8,9 +8,13 @@ use projeto\Page;
 
 $app->get('/', function () {
 
+	$products = Products::listAll();
+
 	$page = new Page();
 
-	$page->setTpl("index");
+	$page->setTpl("index",[
+		'products'=>Products::checkList($products)
+	]);
 
 });
 
@@ -18,7 +22,7 @@ $app->get('/', function () {
 $app->get("/categories/:idcategory", function ($idcategory) {
 
 
-	$page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
+	$page = (isset($_GET['page'])) ? (int) $_GET['page'] : 1;
 
 	$category = new Category();
 
@@ -28,10 +32,10 @@ $app->get("/categories/:idcategory", function ($idcategory) {
 
 	$pages = [];
 
-	for ($i=1; $i <= $pagination['pages']; $i++) { 
+	for ($i = 1; $i <= $pagination['pages']; $i++) {
 		array_push($pages, [
-			'link'=>'/categories/'.$category->getidcategory().'?page='.$i,
-			'page'=>$i
+			'link' => '/categories/' . $category->getidcategory() . '?page=' . $i,
+			'page' => $i
 		]);
 	}
 
@@ -47,27 +51,83 @@ $app->get("/categories/:idcategory", function ($idcategory) {
 });
 
 
-$app->get('/products/:desurl', function($desurl){
+$app->get('/products/:desurl', function ($desurl) {
 	$product = new Products();
 
 	$product->getFormUrl($desurl);
 
 	$page = new Page();
 
-	$page->setTpl("product-detail",[
+	$page->setTpl("product-detail", [
 
-		"product"=>$product->getValues(),
-		"categories"=>$product->getCategories()
+		"product" => $product->getValues(),
+		"categories" => $product->getCategories()
 	]);
 });
 
 
 
-$app->get("/cart",function(){
+$app->get("/cart", function () {
+
 	$cart = Cart::getFromSession();
 	$page = new Page();
 
-	$page->setTpl("cart");
-})
+	$page->setTpl(
+		"cart",
+		[
+			"cart" => $cart->getValues(),
+			"products" => $cart->getProducts()
+		]
+	);
+});
+
+
+$app->get("/cart/:idproduct/add", function ($idproduct) {
+
+
+	$product = new Products();
+
+	$product->get((int) $idproduct);
+
+	$cart = Cart::getFromSession();
+	
+	$qtd = (isset($_GET['qtd'])) ? (int)$_GET['qtd'] : 1;
+
+	for ($i = 0; $i < $qtd; $i++) {
+		
+		$cart->addProduc($product);
+
+	}
+
+	header("Location: /cart");
+	exit;
+});
+
+$app->get("/cart/:idproduct/minus", function ($idproduct) {
+	$product = new Products();
+
+	$product->get((int) $idproduct);
+
+	$cart = Cart::getFromSession();
+
+	$cart->removeProduc($product);
+
+	header("Location: /cart");
+	exit;
+});
+
+
+$app->get("/cart/:idproduct/remove", function ($idproduct) {
+	$product = new Products();
+
+	$product->get((int) $idproduct);
+
+	$cart = Cart::getFromSession();
+
+	$cart->removeProduc($product, true);
+
+	header("Location: /cart");
+	exit;
+});
 
 ?>

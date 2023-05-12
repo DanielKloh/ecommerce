@@ -13,9 +13,11 @@ class User extends Model
 
 
     const SESSION = "User";
-    const SECRET = "HcodePhp7_Secret";
-    const SECRET_IV = "HcodePhp7_Secret_IV";
-
+	const SECRET = "HcodePhp7_Secret";
+	const SECRET_IV = "HcodePhp7_Secret_IV";
+	const ERROR = "UserError";
+	const ERROR_REGISTER = "UserErrorRegister";
+	const SUCCESS = "UserSucesss";
 
     public static function getFromSession()
     {
@@ -29,23 +31,38 @@ class User extends Model
     }
 
 
-    public static function chekLogin($inadmin = true)
-    {
-        if (
-            !isset($_SESSION[User::SESSION])
-            ||
-            !$_SESSION[User::SESSION]
-            ||
-            !(int) $_SESSION[User::SESSION]["iduser"] > 0
-        ) {
-            //Não esta logado
-            return false;
-        } else if ($inadmin === true && (bool) $_SESSION[User::SESSION]["inadmin"] === true) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+    public static function checkLogin($inadmin = true)
+	{
+
+		if (
+			!isset($_SESSION[User::SESSION])
+			||
+			!$_SESSION[User::SESSION]
+			||
+			!(int)$_SESSION[User::SESSION]["iduser"] > 0
+		) {
+			//Não está logado
+			return false;
+
+		} else {
+
+			if ($inadmin === true && (bool)$_SESSION[User::SESSION]["iduser"]["inadmin"] === true) {
+
+				return true;
+
+			} else if ($inadmin === false) {
+
+				return true;
+
+			} else {
+
+				return false;
+
+			}
+
+		}
+
+	}
 
 
     public static function login($login, $password)
@@ -84,15 +101,21 @@ class User extends Model
 
     }
 
-    public static function verifyLogin($inadmin = true)
-    {
+	public static function verifyLogin($inadmin = true)
+	{
 
-        if (User::chekLogin($inadmin)) {
-            header("Location: /admin/login/");
-            exit;
-        } else {
-        }
-    }
+		if (!User::checkLogin($inadmin)) {
+
+			if ($inadmin) {
+				header("Location: /admin/login");
+			} else {
+				header("Location: /login");
+			}
+			exit;
+
+		}
+
+	}
 
     public static function logout()
     {

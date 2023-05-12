@@ -5,7 +5,6 @@ use projeto\Model\User;
 use projeto\Page_Admin;
 
 
-
 $app->get('/admin/', function () {
 
 	User::verifyLogin();
