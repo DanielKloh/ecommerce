@@ -229,8 +229,8 @@ class Cart extends Model
 
 			$xml = simplexml_load_file("http://ws.correios.com.br/calculador/CalcPrecoPrazo.asmx/CalcPrecoPrazo?".$qs);
 
-
 			$result = $xml->Servicos->cServico;
+			var_dump($result);
 
 			if ($result->MsgErro != '') {
 
@@ -251,7 +251,6 @@ class Cart extends Model
 			return $result;
 
 		} else {
-
 
 
 		}
@@ -306,8 +305,9 @@ class Cart extends Model
 
 		$totals = $this->getProductsTotals();
 
-		$this->setvlsubtotal($totals["vlprice"]);
-		$this->setvltotal($totals["vlprice"] + $this->getvlfreight());
+		$this->setvlsubtotal($totals['vlprice']);
+		$this->setvltotal($totals['vlprice'] + (float)$this->getvlfreight());
+
 	}
 }
 
