@@ -84,6 +84,7 @@ $app->post('/admin/users/create', function () {
 });
 
 $app->post('/admin/users/:iduser', function ($iduser) {
+	
 	User::verifyLogin();
 
 	$user = new User();
