@@ -30,8 +30,6 @@ function getUserName()
 {
 	$user = User::getFromSession();
 	
-	var_dump($user->getdesperson());
-
 	return $user->getdesperson();
 
 }

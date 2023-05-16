@@ -172,7 +172,7 @@ class User extends Model
 
         // $data['desperson'] = utf8_encode($data['desperson']);
 
-        $this->setData($results[0]);
+        $this->setData($data);
     }
 
 
