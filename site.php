@@ -1,11 +1,12 @@
 <?php
 
 
-use projeto\Model;
+use projeto\Model\Address;
 use projeto\Model\Cart;
 use projeto\Model\Category;
 use projeto\Model\Products;
 use projeto\Model\User;
+
 use projeto\Page;
 
 $app->get('/', function () {
@@ -156,19 +157,106 @@ $app->get("/checkout", function(){
 
 	User::verifyLogin(false);
 
-	$address = new Model();
+	$address = new Address();
+	
 	$cart = Cart::getFromSession();
+
+	if(isset($_GET["zipcode"])){
+
+		$_GET["zipcode"] = $cart->getdeszipcode();
+	}
+
+	if(isset($_GET["zipcode"])){
+		$address->loadFromCEP($_GET["zipcode"]);
+
+		$cart->setdeszipcode($_GET["zipcode"]);
+
+		$cart->save();
+
+		$cart->getCalcolateTotal();
+	}
+
+	if (!$address->getdesaddress()) $address->setdesaddress('');
+	if (!$address->getdesnumber()) $address->setdesnumber('');
+	if (!$address->getdescomplement()) $address->setdescomplement('');
+	if (!$address->getdesdistrict()) $address->setdesdistrict('');
+	if (!$address->getdescity()) $address->setdescity('');
+	if (!$address->getdesstate()) $address->setdesstate('');
+	if (!$address->getdescountry()) $address->setdescountry('');
+	if (!$address->getdeszipcode()) $address->setdeszipcode('');
 
 	$page = new Page();
 
 	$page->setTpl("checkout", [
 		'cart'=>$cart->getValues(),
 		'address'=>$address->getValues(),
-		"error"=>""
+		"products"=>$cart->getProducts(),
+		"error"=>Address::getMsgErro()
 
 	]);
-
 });
+
+$app->post("/checkout", function(){
+
+	User::verifyLogin(false);
+	$user = User::getFromSession();
+	$address = new Address;
+
+
+	if(!isset($_POST["zipcode"]) || $_POST["zipcode"] === ""){
+		Address::setMsgErro("Informe o CEP");
+		header("Location: /checkout");
+		exit;
+	}
+
+	if(!isset($_POST["desaddress"]) || $_POST["desaddress"] === ""){
+		Address::setMsgErro("Informe o endereço");
+		header("Location: /checkout");
+		exit;
+	}
+
+	if(!isset($_POST["desdistrict"]) || $_POST["desdistrict"] === ""){
+		Address::setMsgErro("Informe o bairro");
+		header("Location: /checkout");
+		exit;
+	} 
+
+	if(!isset($_POST["descity"]) || $_POST["descity"] === ""){
+		Address::setMsgErro("Informe o cidade");
+		header("Location: /checkout");
+		exit;
+	}
+
+	if(!isset($_POST["desstate"]) || $_POST["desstate"] === ""){
+		Address::setMsgErro("Informe o estado");
+		header("Location: /checkout");
+		exit;
+	}
+
+	if(!isset($_POST["descountry"]) || $_POST["descountry"] === ""){
+		Address::setMsgErro("Informe o país");
+		header("Location: /checkout");
+		exit;
+	}
+
+	$user2= $user->getiduser();
+
+	$_POST["deszipcode"] = $_POST["zipcode"];
+	$_POST["idperson"] = $user2["idperson"];
+
+
+
+
+	$address->setData($_POST);
+
+	$address->save();
+
+	header("Location: /order");
+	exit;
+});
+
+
+
 
 $app->get("/login", function(){
 
@@ -371,9 +459,9 @@ $app->post("/profile",function(){
 	}
 
 	$user = User::getFromSession();
+	$user2 = $user->getiduser();
 
-
-	if($_POST["desemail"] !== $user->getdesemail()){
+	if($_POST["desemail"] !== $user2["desemail"]){
 
 		if(User::checkLoginExist($_POST["desemail"]) === true){
 			User::setError("Este email já está em uso!");
@@ -383,15 +471,13 @@ $app->post("/profile",function(){
 	}
 
 
+	$_POST['inadmin'] = $user->getinadmin();
+	$_POST['despassword'] = $user->getdespassword();
+	$_POST['deslogin'] = $_POST['desemail'];
+	$_POST["iduser"] = $user->getiduser();
+	$_POST["iduser"] = $_POST["iduser"]["iduser"];
 
-	$_POST['inadmin'] = (int)$user->getinadmin();
-	$_POST['despassword'] = User::getPasswordHash( $user->getdespassword());
 
-
-
-	var_dump($_POST['inadmin']);
-	var_dump($_POST['despassword']);
-	var_dump($_POST['deslogin']);
 	$user->setData($_POST);
 
 	

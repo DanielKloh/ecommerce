@@ -73,9 +73,10 @@ class User extends Model
         $sql = new Sql();
 
         $result = $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b ON a.idperson = b.idperson WHERE a.deslogin = :LOGIN", array(
-            ":LOGIN" => $login
-        )
-        );
+			":LOGIN"=>$login
+		));
+
+        
 
         if (count($result) === 0) {
             throw new \Exception("Usuario invalido", 1);
