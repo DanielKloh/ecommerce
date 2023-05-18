@@ -183,7 +183,7 @@ class User extends Model
         $result = $sql->select(
             "CALL sp_usersupdate_save(:iduser, :desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)",
             array(
-                ":iduser" => $this->getiduser(),
+                ":iduser" => $this->getiduser()["iduser"],
                 ":desperson" => $this->getdesperson(),
                 ":deslogin" =>mb_convert_encoding($this->getdeslogin(), "Windows-1252", "UTF-8"),
                 ":despassword" => User::getPasswordHash($this->getdespassword()),
@@ -340,7 +340,8 @@ class User extends Model
     {
         $sql = new Sql();
 
-        $sql->select(
+      
+        $sql->query(
             "UPDATE tb_users SET despassword = :password WHERE iduser = :iduser",
             array(
                 ":passeord" => $Password,
