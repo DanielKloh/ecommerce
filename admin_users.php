@@ -11,14 +11,42 @@ $app->get('/admin/users', function () {
 
 	User::verifyLogin();
 
-	$users = User::listAll();
+
+	$search = isset($_GET["search"]) ? $_GET["search"] : "";
+
+	$page = (isset($_GET["page"])) ? (int) $_GET["page"] : 1;
+
+
+	if ($search != "") {
+
+		$pagination = User::getPageSearch($search, $page);
+	} else {
+
+		$pagination = User::getPage($page);
+	}
+
+
+	$pages = [];
+
+	for ($i = 0; $i < $pagination["pages"]; $i++) {
+		array_push($pages, [
+			'href' => "/admin/users?" . http_build_query([
+				"page" => $i + 1,
+				"search" => $search
+			]),
+			"text" => $i + 1
+		]);
+	}
+
 
 	$page = new Page_Admin();
 
 	$page->setTpl(
 		"users",
 		array(
-			"users" => $users
+			"users" => $pagination["data"],
+			"search" => $search,
+			"pages" => $pages
 		)
 	);
 });
@@ -39,7 +67,7 @@ $app->get('/admin/users/:iduser/delete', function ($iduser) {
 
 	$user = new User();
 
-	$user->get((int)$iduser);
+	$user->get((int) $iduser);
 
 	$user->delete();
 
@@ -84,7 +112,7 @@ $app->post('/admin/users/create', function () {
 });
 
 $app->post('/admin/users/:iduser', function ($iduser) {
-	
+
 	User::verifyLogin();
 
 	$user = new User();
