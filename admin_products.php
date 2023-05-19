@@ -36,7 +36,6 @@ $app->get("/admin/products", function () {
 		]);
 	}
 
-    $products = Products::listAll();
 
     $page = new Page_Admin();
 
