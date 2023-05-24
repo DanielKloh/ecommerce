@@ -23,13 +23,13 @@ class User extends Model
     {
         $user = new User();
 
-        if (isset($_SESSION[User::SESSION]) && (int) $_SESSION[User::SESSION]["iduser"] > 0) {
+		if (isset($_SESSION[User::SESSION]) && (int)$_SESSION[User::SESSION]['iduser'] > 0) {
 
-            $user->setData($_SESSION[User::SESSION]);
+			$user->setData($_SESSION[User::SESSION]);
 
-        }
+		}
 
-        return $user;
+		return $user;
     }
 
 
@@ -73,10 +73,10 @@ class User extends Model
         $sql = new Sql();
 
         $result = $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b ON a.idperson = b.idperson WHERE a.deslogin = :LOGIN", array(
-			":LOGIN"=>$login
-		));
+            ":LOGIN" => $login
+        ));
 
-        
+
 
         if (count($result) === 0) {
             throw new \Exception("Usuario invalido", 1);
@@ -84,11 +84,13 @@ class User extends Model
 
         $data = $result[0];
 
+
+
         if (password_verify($password, $data["despassword"]) === true) {
 
             $user = new User;
 
-
+        
             $data['desperson'] = mb_convert_encoding($data['desperson'], "Windows-1252", "UTF-8");
 
             $user->setiduser($data);
@@ -145,7 +147,7 @@ class User extends Model
             "CALL sp_users_save(:desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)",
             array(
                 ":desperson" => $this->getdesperson(),
-                ":deslogin" =>mb_convert_encoding($this->getdeslogin(), "Windows-1252", "UTF-8"),
+                ":deslogin" => mb_convert_encoding($this->getdeslogin(), "Windows-1252", "UTF-8"),
                 ":despassword" => User::getPasswordHash($this->getdespassword()),
                 ":desemail" => $this->getdesemail(),
                 ":nrphone" => $this->getnrphone(),
@@ -160,9 +162,11 @@ class User extends Model
     {
         $sql = new Sql();
 
-        $results = $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b USING(idperson) WHERE a.iduser = :iduser", array(
-            ":iduser" => $iduser
-        )
+        $results = $sql->select(
+            "SELECT * FROM tb_users a INNER JOIN tb_persons b USING(idperson) WHERE a.iduser = :iduser",
+            array(
+                ":iduser" => $iduser
+            )
         );
 
         $data = $results[0];
@@ -183,9 +187,9 @@ class User extends Model
         $result = $sql->select(
             "CALL sp_usersupdate_save(:iduser, :desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)",
             array(
-                ":iduser" => $this->getiduser()["iduser"],
+                ":iduser" => $this->getiduser(),
                 ":desperson" => $this->getdesperson(),
-                ":deslogin" =>mb_convert_encoding($this->getdeslogin(), "Windows-1252", "UTF-8"),
+                ":deslogin" => mb_convert_encoding($this->getdeslogin(), "Windows-1252", "UTF-8"),
                 ":despassword" => User::getPasswordHash($this->getdespassword()),
                 ":desemail" => $this->getdesemail(),
                 ":nrphone" => $this->getnrphone(),
@@ -196,6 +200,40 @@ class User extends Model
         $this->setData($result[0]);
     }
 
+
+    public function updateValues()
+    {
+        //
+        $sql = new Sql();
+
+        $result = $sql->select(
+            "CALL sp_usersupdate_save(:iduser, :desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)",
+            array(
+                ":iduser" => $this->getiduser()['iduser'],
+                ":desperson" => $this->getdesperson(),
+                ":deslogin" => mb_convert_encoding($this->getdeslogin(), "Windows-1252", "UTF-8"),
+                ":despassword" => User::getPasswordHash($this->getdespassword()),
+                ":desemail" => $this->getdesemail(),
+                ":nrphone" => $this->getnrphone(),
+                ":inadmin" => $this->getinadmin()
+            )
+        );
+
+        $this->setData($result[0]);
+    }
+
+    public function updataPassword($password){
+
+            $sql = new Sql();
+    
+    
+            $sql->query("UPDATE tb_users SET despassword = :password WHERE iduser = :iduser", array(
+                ":password" => $password,
+                ":iduser" => $this->getiduser()["iduser"]
+            )
+            );
+        
+    }
     public function delete()
     {
 
@@ -217,12 +255,11 @@ class User extends Model
 
         $sql = new Sql();
 
-        $results = $sql->select("SELECT * 
-        FROM tb_persons a 
-        INNER JOIN tb_users b USING(idperson) 
-        WHERE a.desemail = :email
-		",
-            array(
+        $results = $sql->select("SELECT *
+			FROM tb_persons a
+			INNER JOIN tb_users b USING(idperson)
+			WHERE a.desemail = :email;
+		", array(
                 ":email" => $email
             )
         );
@@ -235,12 +272,10 @@ class User extends Model
 
             $data = $results[0];
 
-            $results2 = $sql->select(
-                "CALL sp_userspasswordsrecoveries_create(:iduser, :desip)",
-                array(
-                    ":iduser" => $data['iduser'],
-                    ":desip" => $_SERVER['REMOTE_ADDR']
-                )
+            $results2 = $sql->select("CALL sp_userspasswordsrecoveries_create(:iduser, :desip)", array(
+                ":iduser" => $data['iduser'],
+                ":desip" => $_SERVER['REMOTE_ADDR']
+            )
             );
 
             if (count($results2) === 0) {
@@ -250,6 +285,7 @@ class User extends Model
             } else {
 
                 $dataRecovery = $results2[0];
+
 
                 $code = openssl_encrypt($dataRecovery['idrecovery'], 'AES-128-CBC', pack("a16", User::SECRET), 0, pack("a16", User::SECRET_IV));
 
@@ -265,30 +301,30 @@ class User extends Model
 
                 }
 
-                $mailer = new Mailer(
-                    $data['desemail'], $data['desperson'],
-                    "Redefinir senha da Daniel Store",
-                    "forgot",
-                    array(
-                        "name" => $data['desperson'],
-                        "link" => $link
-                    )
+
+                $mailer = new Mailer($data['desemail'], $data['desperson'], "Redefinir senha da Hcode Store", "forgot", array(
+                    "name" => $data['desperson'],
+                    "link" => $link
+                )
                 );
 
                 $mailer->send();
 
                 return $link;
+
             }
 
-
-
-
-
         }
+
+
+
+
+
+
     }
 
 
-    public static function validForgotDecripy($code)
+    public static function validForgotDecrypt($code)
     {
 
         $code = base64_decode($code);
@@ -307,44 +343,41 @@ class User extends Model
 				a.dtrecovery IS NULL
 				AND
 				DATE_ADD(a.dtregister, INTERVAL 1 HOUR) >= NOW();
-		",
-            array(
+		", array(
                 ":idrecovery" => $idrecovery
             )
         );
 
         if (count($results) === 0) {
-            throw new \Exception("Não foi possível recuperar a senha", 1);
-
+            throw new \Exception("Não foi possível recuperar a senha.");
         } else {
 
             return $results[0];
-        }
-    }
 
+        }
+
+    }
 
 
     public static function setForgotUsed($idrecovery)
     {
         $sql = new Sql();
 
-        $sql->query(
-            "UPDATE tb_userspasswordsrecoveries SET dtrecovery = NOW idrecovery = :idrecovery",
-            array(
-                ":idrecovery" => $idrecovery
-            )
-        );
+		$sql->query("UPDATE tb_userspasswordsrecoveries SET dtrecovery = NOW() WHERE idrecovery = :idrecovery", array(
+			":idrecovery"=>$idrecovery
+		));
     }
 
     public function setPassword($password)
     {
         $sql = new Sql();
 
-      
-		$sql->query("UPDATE tb_users SET despassword = :password WHERE iduser = :iduser", array(
-			":password"=>$password,
-			":iduser"=>$this->getiduser()
-		));
+
+        $sql->query("UPDATE tb_users SET despassword = :password WHERE iduser = :iduser", array(
+            ":password" => $password,
+            ":iduser" => $this->getiduser()
+        )
+        );
     }
 
 
@@ -451,11 +484,11 @@ class User extends Model
 
 
     public function getOrders($iduser)
-	{
+    {
 
-		$sql = new Sql();
+        $sql = new Sql();
 
-		$results = $sql->select("SELECT * 
+        $results = $sql->select("SELECT * 
 			FROM tb_orders a 
 			INNER JOIN tb_ordersstatus b USING(idstatus) 
 			INNER JOIN tb_carts c USING(idcart)
@@ -464,16 +497,17 @@ class User extends Model
 			INNER JOIN tb_persons f ON f.idperson = d.idperson
 			WHERE a.iduser = :iduser
 		", [
-			':iduser'=>$iduser
-		]);
+                ':iduser' => $iduser
+            ]);
 
-		return $results;
+        return $results;
 
-	}
+    }
 
-    public static function getPage($page = 1, $itemsPerPage = 10){
+    public static function getPage($page = 1, $itemsPerPage = 10)
+    {
 
-        $start = ($page -1) * $itemsPerPage;
+        $start = ($page - 1) * $itemsPerPage;
 
         $sql = new Sql();
 
@@ -484,19 +518,20 @@ class User extends Model
 			LIMIT $start, $itemsPerPage;
 		");
 
-    $resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal");
+        $resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal");
 
-    return [
-        "data"=>$result,
-        "total"=>(int)$resultTotal[0]["nrtotal"],
-        "pages"=>ceil($resultTotal[0]["nrtotal"]/$itemsPerPage)
-    ];
+        return [
+            "data" => $result,
+            "total" => (int) $resultTotal[0]["nrtotal"],
+            "pages" => ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
+        ];
     }
 
 
-    public static function getPageSearch($search,$page = 1, $itemsPerPage = 10){
+    public static function getPageSearch($search, $page = 1, $itemsPerPage = 10)
+    {
 
-        $start = ($page -1) * $itemsPerPage;
+        $start = ($page - 1) * $itemsPerPage;
 
         $sql = new Sql();
 
@@ -506,17 +541,17 @@ class User extends Model
             WHERE b.desperson LIKE :search OR b.desemail = :search OR a.deslogin LIKE :search
 			ORDER BY b.desperson
 			LIMIT $start, $itemsPerPage;
-		",[
-            ":search"=>"%".$search."%"
-        ]);
+		", [
+                ":search" => "%" . $search . "%"
+            ]);
 
-    $resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal");
+        $resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal");
 
-    return [
-        "data"=>$result,
-        "total"=>(int)$resultTotal[0]["nrtotal"],
-        "pages"=>ceil($resultTotal[0]["nrtotal"]/$itemsPerPage)
-    ];
+        return [
+            "data" => $result,
+            "total" => (int) $resultTotal[0]["nrtotal"],
+            "pages" => ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
+        ];
     }
 
 

@@ -48,7 +48,7 @@ $app->get('/admin/forgot', function () {
 
 $app->post('/admin/forgot', function () {
 
-	$user = User::getForgot($_POST["email"]);
+	User::getForgot($_POST["email"]);
 
 	header("Location: /admin/forgot/sent");
 	exit;
@@ -68,14 +68,14 @@ $app->get('/admin/forgot/sent', function () {
 
 $app->get('/admin/forgot/reset', function () {
 
-	$user = User::validForgotDecripy($_GET["code"]);
+	$user = User::validForgotDecrypt($_GET["code"]);
 	$page = new Page_Admin([
 		"header" => false,
 		"footer" => false
 	]);
 
 	$page->setTpl("forgot-reset", array(
-		"neme" => $user["desperson"],
+		"name" => $user["desperson"],
 		"code" => $_GET["code"]
 	)
 	);
@@ -86,9 +86,9 @@ $app->get('/admin/forgot/reset', function () {
 
 $app->post('/admin/forgot/reset', function () {
 
-	$forgot = User::validForgotDecripy($_POST["code"]);
+	$forgot = User::validForgotDecrypt($_POST["code"]);
 
-	User::setForgotUsed($forgot["idcovery"]);
+	User::setForgotUsed($forgot["idrecovery"]);
 
 	$user = new User();
 
@@ -103,7 +103,7 @@ $app->post('/admin/forgot/reset', function () {
 		"footer" => false
 	]);
 
-	$page->setTpl("forgot-reset-succes");
+	$page->setTpl("forgot-reset-success");
 });
 
 

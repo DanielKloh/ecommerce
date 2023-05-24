@@ -401,7 +401,7 @@ $app->get('/forgot', function () {
 
 $app->post('/forgot', function () {
 
-	$user = User::getForgot($_POST["email"], false);
+	User::getForgot($_POST["email"], false);
 
 	header("Location: /forgot/sent");
 	exit;
@@ -418,13 +418,13 @@ $app->get('/forgot/sent', function () {
 
 $app->get('/forgot/reset', function () {
 
-	$user = User::validForgotDecripy($_GET["code"]);
+	$user = User::validForgotDecrypt($_GET["code"]);
 	$page = new Page();
 
 	$page->setTpl(
 		"forgot-reset",
 		array(
-			"neme" => $user["desperson"],
+			"name" => $user["desperson"],
 			"code" => $_GET["code"]
 		)
 	);
@@ -435,9 +435,9 @@ $app->get('/forgot/reset', function () {
 
 $app->post('/forgot/reset', function () {
 
-	$forgot = User::validForgotDecripy($_POST["code"]);
+	$forgot = User::validForgotDecrypt($_POST["code"]);
 
-	User::setForgotUsed($forgot["idcovery"]);
+	User::setForgotUsed($forgot["idrecovery"]);
 
 	$user = new User();
 
@@ -449,7 +449,7 @@ $app->post('/forgot/reset', function () {
 
 	$page = new Page();
 
-	$page->setTpl("forgot-reset-succes");
+	$page->setTpl("forgot-reset-success");
 });
 
 
@@ -475,7 +475,6 @@ $app->post("/profile", function () {
 
 	User::verifyLogin(false);
 
-
 	if (!isset($_POST["desperson"]) || $_POST["desperson"] === "") {
 		User::setError("Preencha os seu nome");
 		header("Location: /profile");
@@ -489,9 +488,8 @@ $app->post("/profile", function () {
 	}
 
 	$user = User::getFromSession();
-	$user2 = $user->getiduser();
 
-	if ($_POST["desemail"] !== $user2["desemail"]) {
+	if ($_POST["desemail"] !== $user->getiduser()["desemail"]) {
 
 		if (User::checkLoginExist($_POST["desemail"]) === true) {
 			User::setError("Este email já está em uso!");
@@ -500,18 +498,14 @@ $app->post("/profile", function () {
 		}
 	}
 
-
-	$_POST['inadmin'] = $user->getinadmin();
-	$_POST['despassword'] = $user->getdespassword();
+	$_POST["inadmin"] = $user->getiduser()["iduser"];
+	$_POST["despassword"] = User::getPasswordHash($user->getiduser()["despassword"]);
+	$_POST['inadmin'] = $user->getiduser()["inadmin"];
 	$_POST['deslogin'] = $_POST['desemail'];
-	$_POST["iduser"] = $user->getiduser();
-	$_POST["iduser"] = $_POST["iduser"]["iduser"];
-
 
 	$user->setData($_POST);
 
-
-	$user->update();
+	$user->updateValues();
 
 	User::setSucess("Dados aleterados com sucesso!!");
 
@@ -649,6 +643,7 @@ $app->get("/profile/orders/:idorder", function ($idorder) {
 
 $app->get("/profile/change-password", function () {
 	User::verifyLogin(false);
+
 	$page = new Page();
 
 	$page->setTpl("profile-change-password", [
@@ -658,60 +653,63 @@ $app->get("/profile/change-password", function () {
 });
 
 
-$app->post("/profile/change-password",function () {
+$app->post(
+	"/profile/change-password",
+	function () {
 
 		User::verifyLogin(false);
 
-	if (!isset($_POST['current_pass']) || $_POST['current_pass'] === '') {
+		if (!isset($_POST['current_pass']) || $_POST['current_pass'] === '') {
 
-		User::setError("Digite a senha atual.");
+			User::setError("Digite a senha atual.");
+			header("Location: /profile/change-password");
+			exit;
+
+		}
+
+		if (!isset($_POST['new_pass']) || $_POST['new_pass'] === '') {
+
+			User::setError("Digite a nova senha.");
+			header("Location: /profile/change-password");
+			exit;
+
+		}
+
+		if (!isset($_POST['new_pass_confirm']) || $_POST['new_pass_confirm'] === '') {
+
+			User::setError("Confirme a nova senha.");
+			header("Location: /profile/change-password");
+			exit;
+
+		}
+
+		if ($_POST['current_pass'] === $_POST['new_pass']) {
+
+			User::setError("A sua nova senha deve ser diferente da atual.");
+			header("Location: /profile/change-password");
+			exit;
+
+		}
+
+		$user = User::getFromSession();
+
+
+		if (!password_verify($_POST['current_pass'], $user->getiduser()["despassword"])) {
+
+			User::setError("A senha está inválida.");
+			header("Location: /profile/change-password");
+			exit;
+
+		}
+
+	
+		$user->updataPassword(User::getPasswordHash($_POST['new_pass']));
+
+
+		User::setSucess("Senha alterada com sucesso.");
+
 		header("Location: /profile/change-password");
 		exit;
-
-	}
-
-	if (!isset($_POST['new_pass']) || $_POST['new_pass'] === '') {
-
-		User::setError("Digite a nova senha.");
-		header("Location: /profile/change-password");
-		exit;
-
-	}
-
-	if (!isset($_POST['new_pass_confirm']) || $_POST['new_pass_confirm'] === '') {
-
-		User::setError("Confirme a nova senha.");
-		header("Location: /profile/change-password");
-		exit;
-
-	}
-
-	if ($_POST['current_pass'] === $_POST['new_pass']) {
-
-		User::setError("A sua nova senha deve ser diferente da atual.");
-		header("Location: /profile/change-password");
-		exit;		
-
-	}
-
-	$user = User::getFromSession();
-
-	// if (!password_verify($_POST['current_pass'], $user->getdespassword())) {
-
-	// 	User::setError("A senha está inválida.");
-	// 	header("Location: /profile/change-password");
-	// 	exit;			
-
-	// }
-
-	$user->setdespassword($_POST['new_pass']);
-
-	$user->update();
-
-	User::setSucess("Senha alterada com sucesso.");
-
-	header("Location: /profile/change-password");
-	exit;
 
 	}
 );

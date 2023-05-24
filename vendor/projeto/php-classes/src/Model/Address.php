@@ -51,10 +51,11 @@ class Address extends Model{
 
         $sql = new Sql();
 
-        $results = $sql->select("CALL sp_addresses_save(:idaddress, :idperson, :desaddress, :descomplement, :descity, :desstate, :descountry, :deszipcode, :desdistrict)", [
+        $results = $sql->select("CALL sp_addresses_save(:idaddress, :idperson, :desaddress,:desnumber, :descomplement, :descity, :desstate, :descountry, :deszipcode, :desdistrict)", [
 			':idaddress'=>$this->getidaddress(),
 			':idperson'=>$this->getidperson(),
 			':desaddress'=>mb_convert_encoding($this->getdesaddress(), "Windows-1252", "UTF-8"),
+			":desnumber"=>$this->getdesnumber(),
 			':descomplement'=>mb_convert_encoding($this->getdescomplement(), "Windows-1252", "UTF-8"),
 			':descity'=>mb_convert_encoding($this->getdescity(), "Windows-1252", "UTF-8"),
 			':desstate'=>mb_convert_encoding($this->getdesstate(), "Windows-1252", "UTF-8"),
