@@ -212,7 +212,7 @@ class User extends Model
                 ":iduser" => $this->getiduser()['iduser'],
                 ":desperson" => $this->getdesperson(),
                 ":deslogin" => mb_convert_encoding($this->getdeslogin(), "Windows-1252", "UTF-8"),
-                ":despassword" => User::getPasswordHash($this->getdespassword()),
+                ":despassword" => ($this->getdespassword()),
                 ":desemail" => $this->getdesemail(),
                 ":nrphone" => $this->getnrphone(),
                 ":inadmin" => $this->getinadmin()

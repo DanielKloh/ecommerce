@@ -499,8 +499,8 @@ $app->post("/profile", function () {
 	}
 
 	$_POST["inadmin"] = $user->getiduser()["iduser"];
-	$_POST["despassword"] = User::getPasswordHash($user->getiduser()["despassword"]);
-	$_POST['inadmin'] = $user->getiduser()["inadmin"];
+	$_POST['despassword'] = $user->getiduser()["despassword"];
+
 	$_POST['deslogin'] = $_POST['desemail'];
 
 	$user->setData($_POST);
