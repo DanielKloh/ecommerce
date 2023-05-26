@@ -69,7 +69,17 @@ $app->get('/products/:desurl', function ($desurl) {
 		"categories" => $product->getCategories()
 	]);
 });
+$app->get("/products", function(){
+ 
+	$products = Products::listAll();
 
+	$page = new Page();
+ 
+	$page->setTpl("products", [
+		'products' => Products::checkList($products)
+	]);
+ 
+});
 
 
 $app->get("/cart", function () {

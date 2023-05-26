@@ -18,7 +18,7 @@
 
             <div class="col-md-3 col-sm-6">
                 <div class="single-shop-product">
-                    <div class="product-upper">
+                    <div class="conteiner-product">
                         <img src="<?php echo htmlspecialchars( $value1["desphoto"], ENT_COMPAT, 'UTF-8', FALSE ); ?>" alt="imagem bem legal">
                     </div>
                     <h2><a href="/products/<?php echo htmlspecialchars( $value1["desurl"], ENT_COMPAT, 'UTF-8', FALSE ); ?>"><?php echo htmlspecialchars( $value1["desproduct"], ENT_COMPAT, 'UTF-8', FALSE ); ?></a></h2>

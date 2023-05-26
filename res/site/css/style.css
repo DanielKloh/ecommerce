@@ -255,9 +255,6 @@ z-index: 999;}
 .block-slider .caption-group .primary{
 	color: #1bd172;
 }
-.block-slider .caption-group .caption{
-
-}
 
 /*----------------------
 [10. Block top seller ]
@@ -374,7 +371,10 @@ z-index: 999;}
 }
 
 
-.product-f-image {
+.product-f-image{
+    height: 227px;
+    display: flex;
+    align-items: center;
     position: relative;
 }
 .product-hover {
@@ -443,7 +443,7 @@ z-index: 999;}
 .single-product {
   overflow: hidden;
 }
-.single-product:hover {}
+
 .single-product:hover .product-hover a.add-to-cart-link {top: 32%;}
 .single-product:hover .product-hover a.view-details-link {bottom: 32%;}
 .single-product:hover .product-hover:after{left: 0}
@@ -982,8 +982,6 @@ div.cart-collaterals ul.products li.product {
 .cart_totals table th {
     background: none repeat scroll 0 0 #f4f4f4;
 }
-.onsale {
-}
 div.cart-collaterals ul.products li.product .onsale {
     background: none repeat scroll 0 0 #e67e22;
     color: #fff;
@@ -1001,8 +999,6 @@ div.cart-collaterals ul.products li.product .price {
     display: block;
     margin-bottom: 10px;
     overflow: hidden;
-}
-.price > ins {
 }
 div.cart-collaterals ul.products li.product .price ins {
     color: #e67e22;
@@ -1143,4 +1139,12 @@ div.cart-collaterals ul.products li.product:hover .add_to_cart_button{background
 
 .pagination > li > a, .pagination > li > span {
   color: #e67e22;
+}
+
+.conteiner-product{
+    height: 227px !important; 
+    display: flex !important; 
+    align-items: center !important; 
+    position: relative !important; 
+    justify-content: center !important; 
 }
