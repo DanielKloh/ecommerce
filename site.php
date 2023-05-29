@@ -8,8 +8,9 @@ use projeto\Model\Order;
 use projeto\Model\OrderStatus;
 use projeto\Model\Products;
 use projeto\Model\User;
-
 use projeto\Page;
+
+
 
 $app->get('/', function () {
 
